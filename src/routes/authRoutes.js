@@ -22,6 +22,10 @@ router.post('/register', (req, res)=>{
                 INSERT INTO todos (user_id, task) VALUES (?, ?)
             `)
         inserTodos.run(result.lastInsertRowid, defaultTodos)
+
+        // create a token
+        const token = jwt.sign({id: result.lastInsertRowid}, process.env.JWT_SECRET, {expiresIn: '24h'})
+        res.json({ token })
     } catch (err) {
         console.log(err.message)
         res.sendStatus(503)
@@ -29,6 +33,28 @@ router.post('/register', (req, res)=>{
 })
 
 router.post('/login', (req, res)=>{
+    const {username, password} = req.body
+
+    try {
+        const getUser = db.prepare('SELECT * FROM users WHERE username = ?')
+        const user = getUser.get(username)
+
+        // if we cant find the user that was requsetd then return a status of not found
+        if (!user) {
+            return res.status(404).send({ message: "User Not found"})
+        }
+
+        const passwordIsValid = bcrypt.compareSync(password, user.password)
+
+        if (!passwordIsValid) {
+            return res.status(401).send({message: "invalid password"})
+        }
+
+
+    } catch (err) {
+        console.log(err.message)
+        res.sendStatus(503)
+    }
 
 })
 
