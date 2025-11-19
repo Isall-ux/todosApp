@@ -15,7 +15,7 @@ router.post('/register', (req, res)=>{
         const insertUser = db.prepare(`
                 INSERT INTO users (username, password) VALUES (?, ?)
             `)
-        const result = insertUser.run(`${username}, ${hashPass}`)
+        const result = insertUser.run(username, hashPass)
 
         const defaultTodos = `hello add your firsts todo!`
         const inserTodos = db.prepare(`
@@ -23,7 +23,7 @@ router.post('/register', (req, res)=>{
             `)
         inserTodos.run(result.lastInsertRowid, defaultTodos)
 
-        // create a token
+        // create a token for personal access for personal todos
         const token = jwt.sign({id: result.lastInsertRowid}, process.env.JWT_SECRET, {expiresIn: '24h'})
         res.json({ token })
     } catch (err) {
@@ -46,9 +46,14 @@ router.post('/login', (req, res)=>{
 
         const passwordIsValid = bcrypt.compareSync(password, user.password)
 
+        // if the password dont match then return out of the fungtion
         if (!passwordIsValid) {
             return res.status(401).send({message: "invalid password"})
         }
+        console.log(user)
+        // succesfull login
+        const token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: "24h"})
+        res.json({token})
 
 
     } catch (err) {

@@ -1,2 +1,5 @@
 node_modules
-.env
+
+# not really in production, this is just an example app, uncoment this if this does go to production
+
+# .env
