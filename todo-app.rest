@@ -6,7 +6,7 @@ POST http://localhost:3000/auth/register
 Content-Type: application/json
 
 {
-    "username": "aselole",
+    "username": "user@gmail.com",
     "password": "123123"
 }
 
@@ -15,7 +15,33 @@ POST http://localhost:3000/auth/login
 Content-Type: application/json
 
 {
-    "username": "aselole",
+    "username": "user@gmail.com",
     "password": "123123"
 }
+
+### fetch all todos (protected)
+GET http://localhost:3000/todos
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYzNjU1MjI0LCJleHAiOjE3NjM3NDE2MjR9.c2Fl7XAzJWwZnctHPgQWO-FUVPY_S_jY0f1wosCsDec
+
+### create a todos
+POST http://localhost:3000/todos
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYzNjU1MjI0LCJleHAiOjE3NjM3NDE2MjR9.c2Fl7XAzJWwZnctHPgQWO-FUVPY_S_jY0f1wosCsDec
+Content-Type: application/json
+
+{
+    "task": "finish coding the project"
+}
+
+### update todos
+PUT http://localhost:3000/todos/2
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYzNjU1MjI0LCJleHAiOjE3NjM3NDE2MjR9.c2Fl7XAzJWwZnctHPgQWO-FUVPY_S_jY0f1wosCsDec
+Content-Type: application/json
+
+{
+    "completed": 1
+}
+
+### delete a todo
+DELETE http://localhost:3000/todos/2
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYzNjUwMDAxLCJleHAiOjE3NjM3MzY0MDF9.-LoSivsVgtjuB1p28ybd5UDV-4fz2f5vcrdnO5o_1Ls
 

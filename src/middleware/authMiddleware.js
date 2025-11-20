@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken'
 
 function authMiddleWare(req, res, next) {
-    const token = req.headers('authorization')
+    // access token that was given to the user on log in or account creation
+    const token = req.headers['authorization']
 
     // dont bother responding when there is no token
     if (!token) {
@@ -13,6 +14,9 @@ function authMiddleWare(req, res, next) {
         if (err) {
             return res.status(401).json({message:"invalid token"})
         }
+
+        req.userId = decoded.id
+        next()
     })
 }
 
