@@ -2,29 +2,35 @@ import express from "express"
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import db from '../db.js'
+import prisma from "../prismaClient.js"
+import { Prisma } from "@prisma/client"
 
 const router = express.Router()
 
-router.post('/register', (req, res)=>{
+router.post('/register', async (req, res)=>{
     const {username, password} = req.body
 
     const hashPass = bcrypt.hashSync(password, 8)
 
     // save the new user to the db
     try {
-        const insertUser = db.prepare(`
-                INSERT INTO users (username, password) VALUES (?, ?)
-            `)
-        const result = insertUser.run(username, hashPass)
+        const user = await prisma.user.create({
+            data: {
+                username,
+                password: hashPass
+            }
+        })
 
         const defaultTodos = `hello add your firsts todo!`
-        const inserTodos = db.prepare(`
-                INSERT INTO todos (user_id, task) VALUES (?, ?)
-            `)
-        inserTodos.run(result.lastInsertRowid, defaultTodos)
+        await prisma.todo.create({
+            data: {
+                task: defaultTodos,
+                userId: user.id
+            }
+        })
 
         // create a token for personal access for personal todos
-        const token = jwt.sign({id: result.lastInsertRowid}, process.env.JWT_SECRET, {expiresIn: '24h'})
+        const token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: '24h'})
         res.json({ token })
     } catch (err) {
         console.log(err.message)
@@ -32,12 +38,15 @@ router.post('/register', (req, res)=>{
     }
 })
 
-router.post('/login', (req, res)=>{
+router.post('/login', async (req, res)=>{
     const {username, password} = req.body
 
     try {
-        const getUser = db.prepare('SELECT * FROM users WHERE username = ?')
-        const user = getUser.get(username)
+        const user = await prisma.user.findUnique({
+            where: {
+                username: username
+            }
+        })
 
         // if we cant find the user that was requsetd then return a status of not found
         if (!user) {
