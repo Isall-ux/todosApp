@@ -1,0 +1,6 @@
+node_modules
+
+# not really in production, this is just an example app, uncomment this if this does go to production
+# .env
+
+/src/generated/prisma
