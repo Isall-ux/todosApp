@@ -3,62 +3,67 @@ import prisma from "../prismaClient.js"
 
 const router = express.Router()
 
-// get all todos
-router.get('/', async (req, res)=>{
-    const todos = await prisma.todos.findMany({
-        where: {
-            userId: req.userId
-        }
+
+// GET ALL TODOS FOR USER
+router.get("/", async (req, res) => {
+    const todos = await prisma.todo.findMany({
+        where: { userId: req.userId }
     })
 
     res.json(todos)
 })
 
-// insert a new todo
-router.post('/', async (req, res)=>{
-    const {task} = req.body
-    const todo = prisma.todo.create({
-        data:{
+// CREATE NEW TODO
+router.post("/", async (req, res) => {
+    const { task } = req.body
+
+    const todo = await prisma.todo.create({
+        data: {
             task,
             userId: req.userId
         }
     })
 
     res.json(todo)
-    
 })
 
-// update an existing todo
-router.put('/:id', async (req, res)=>{
-    const {completed}= req.body
-    const {id}= req.params
 
-    const updatedTodo= await prisma.todo.update({
-        where: {
-            id: parseInt(id),
-            userId: req.userId
-        },
-        data:{
-            completed: !!completed
-        }
+// UPDATE TODO
+router.put("/:id", async (req, res) => {
+    const id = parseInt(req.params.id)
+
+    const todo = await prisma.todo.findUnique({
+        where: { id }
+    })
+
+    if (!todo) return res.status(404).json({ error: "Todo not found" })
+    if (todo.userId !== req.userId) return res.status(403).json({ error: "Forbidden" })
+
+    const updatedTodo = await prisma.todo.update({
+        where: { id },
+        data: { completed: !!req.body.completed }
     })
 
     res.json(updatedTodo)
 })
 
-// delete a todo
-router.delete('/:id', async (req, res)=>{
-    const {id}= req.params
-    const {userId}= req
-    await prisma.todo.delete({
-        where: {
-            id: parseInt(id),
-            userId
-        }
+
+// DELETE TODO
+router.delete("/:id", async (req, res) => {
+    const id = parseInt(req.params.id)
+
+    const todo = await prisma.todo.findUnique({
+        where: { id }
     })
 
-    deleteTodo.run(id, userId)
-    res.json({message: "todo successfully deleted"})
+    if (!todo) return res.status(404).json({ error: "Todo not found" })
+    if (todo.userId !== req.userId) return res.status(403).json({ error: "Forbidden" })
+
+    await prisma.todo.delete({
+        where: { id }
+    })
+
+    res.json({ message: "Todo successfully deleted" })
 })
 
 export default router

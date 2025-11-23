@@ -5,8 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -14,17 +13,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User{
+model User {
   id        Int       @id @default(autoincrement())
   username  String    @unique
   password  String
   todos     Todo[]
 }
 
-model Todo{
+model Todo {
   id        Int       @id @default(autoincrement())
   task      String
   completed Boolean   @default(false)
-  userId    Int
+  userId    Int   
   user      User      @relation(fields: [userId], references: [id])
 }
